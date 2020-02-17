@@ -1,0 +1,180 @@
+#%RAML 1.0
+title: ГДЕЗАКАЗЫ.РФ
+version: v1
+baseUri: https://гдезаказы.рф/api/v1
+mediaType: [multipart/form-data]
+protocols: [HTTPS]
+
+documentation:
+  - title: Авторизация
+    content: |
+      Для авторизации, необходимо добавить токен доступа к API к каждому запросу, с помощью HTTP заголовка:
+
+      `Authorization: Bearer [token]`
+
+      Получить токен доступа можно в личном кабинете пользователя.
+
+traits:
+  secured:
+    headers:
+      Authorization:
+        description: Токен доступа к API
+        example: Bearer 71543fa6a11044b0a9f3a8354ddcb00e
+
+types:
+  Track:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "ID трэка в базе данных"
+      track_code:
+        type: string
+        description: "Трек-код заказа"
+      email:
+        type: string
+        description: "E-mail клиента"
+      phone?:
+        type: string
+        description: "Телефон клиента"
+      name?:
+        type: string
+        description: "Имя клиента"
+      order_number?:
+        type: string
+        description: "Номер заказа"
+      order_amount?:
+        type: string
+        description: "Стоимость заказа"
+      created_at:
+        type: datetime
+        description: "Время добавления трека"
+      status:
+        enum: ['new','ontheway','problem','department','delivered','archive']
+        description: "Статус трека"
+      updated_at?:
+        type: datetime
+        description: "Дата последнего обновления статуса трека"
+      had_error:
+        type: boolean
+        description: "Признак наличия ошибки"
+      was_problem:
+        type: boolean
+        description: "Признак что заказ был проблемным в прошлом"
+  Error:
+    type: object
+    properties:
+      field:
+        enum: ['track_code', 'phone', 'email', 'name', 'order_number', 'order_amount']
+        description: "Поле с ошибкой"
+      message:
+        type: string
+        description: "Текст ошибки"
+  Info:
+    type: object
+    properties:
+      name:
+        type: string
+        description: "Название API (константа `гдезаказы.рф API`)"
+      version:
+        type: integer
+        description: "Версия API"
+      opencartLimit:
+        type: integer
+        description: "Количество оставшихся бесплатных треков"
+      opencartSubscription?:
+        type: datetime
+        description: "Время окончания подписки"
+      opencartSubscriptionPlan?:
+        type: integer
+        description: "Текущий тарифный план (1 - месяц, 2 - год)"
+
+/:
+  get:
+    description: "Получить сервисную информацию API"
+    responses:
+      200:
+        description: "Успешный ответ"
+        body:
+          application/json:
+            type: Info
+      403:
+        description: "Доступ запрещен"
+        body:
+          application/json:
+            type: object
+            properties:
+              message: string
+/track:
+  post:
+    description: "Добавить трек"
+    body:
+      properties:
+        track_code:
+          description: "Трек-код заказа"
+          type: string
+          required: true
+        phone:
+          description: "Телефон клиента"
+          type: string
+          required: false
+        email:
+          description: "Email клиента"
+          type: string
+          required: true
+        name:
+          description: "Имя клиента"
+          type: string
+          required: false
+        order_number:
+          description: "Номер заказа"
+          type: string
+          required: false
+        order_amount:
+          description: "Стоимость заказа"
+          type: string
+          required: false
+    responses:
+      200:
+        description: "Успешный ответ"
+        body:
+          application/json:
+            type: Track
+      406:
+        description: "Ошибка валидации"
+        body:
+          application/json:
+            type: object
+            properties:
+              message: string
+              errors: Error[]
+      403:
+        description: "Доступ запрещен"
+        body:
+          application/json:
+            type: object
+            properties:
+              message: string
+  /{id}:
+    get:
+      description: "Получить трек по ID, трек-коду или номеру заказа"
+      responses:
+        200:
+          description: "Успешный ответ"
+          body:
+            application/json:
+              type: Track
+        403:
+          description: "Доступ запрещен"
+          body:
+            application/json:
+              type: object
+              properties:
+                message: string
+        404:
+          description: "Не найдено"
+          body:
+            application/json:
+              type: object
+              properties:
+                message: string

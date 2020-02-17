@@ -1,0 +1,365 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ГДЕЗАКАЗЫ.РФ",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://гдезаказы.рф/api/v1"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Info"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "description": "Получить сервисную информацию API",
+        "operationId": "GET_root"
+      }
+    },
+    "/track": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Track"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "406": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Error"
+                      }
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "description": "Добавить трек",
+        "operationId": "POST_track",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "track_code": {
+                    "description": "Трек-код заказа",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "description": "Телефон клиента",
+                    "type": "string"
+                  },
+                  "email": {
+                    "description": "Email клиента",
+                    "type": "string"
+                  },
+                  "name": {
+                    "description": "Имя клиента",
+                    "type": "string"
+                  },
+                  "order_number": {
+                    "description": "Номер заказа",
+                    "type": "string"
+                  },
+                  "order_amount": {
+                    "description": "Стоимость заказа",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "track_code",
+                  "email"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/track/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Track"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "description": "Получить трек по ID, трек-коду или номеру заказа",
+        "operationId": "GET_track-id"
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "Track": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "ID трэка в базе данных",
+            "type": "integer"
+          },
+          "track_code": {
+            "description": "Трек-код заказа",
+            "type": "string"
+          },
+          "email": {
+            "description": "E-mail клиента",
+            "type": "string"
+          },
+          "phone": {
+            "description": "Телефон клиента",
+            "type": "string"
+          },
+          "name": {
+            "description": "Имя клиента",
+            "type": "string"
+          },
+          "order_number": {
+            "description": "Номер заказа",
+            "type": "string"
+          },
+          "order_amount": {
+            "description": "Стоимость заказа",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "Время добавления трека",
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "description": "Статус трека",
+            "enum": [
+              "new",
+              "ontheway",
+              "problem",
+              "department",
+              "delivered",
+              "archive"
+            ],
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "Дата последнего обновления статуса трека",
+            "type": "string",
+            "format": "date-time"
+          },
+          "had_error": {
+            "description": "Признак наличия ошибки",
+            "type": "boolean"
+          },
+          "was_problem": {
+            "description": "Признак что заказ был проблемным в прошлом",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "track_code",
+          "email",
+          "created_at",
+          "status",
+          "had_error",
+          "was_problem"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "description": "Поле с ошибкой",
+            "enum": [
+              "track_code",
+              "phone",
+              "email",
+              "name",
+              "order_number",
+              "order_amount"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "description": "Текст ошибки",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "message"
+        ]
+      },
+      "Info": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Название API (константа `гдезаказы.рф API`)",
+            "type": "string"
+          },
+          "version": {
+            "description": "Версия API",
+            "type": "integer"
+          },
+          "opencartLimit": {
+            "description": "Количество оставшихся бесплатных треков",
+            "type": "integer"
+          },
+          "opencartSubscription": {
+            "description": "Время окончания подписки",
+            "type": "string",
+            "format": "date-time"
+          },
+          "opencartSubscriptionPlan": {
+            "description": "Текущий тарифный план (1 - месяц, 2 - год)",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "opencartLimit"
+        ]
+      }
+    },
+    "responses": {},
+    "parameters": {
+      "trait_secured_Authorization": {
+        "name": "Authorization",
+        "in": "header",
+        "required": true,
+        "description": "Токен доступа к API",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "examples": {},
+    "requestBodies": {},
+    "headers": {},
+    "securitySchemes": {},
+    "links": {},
+    "callbacks": {}
+  }
+}
