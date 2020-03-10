@@ -254,6 +254,7 @@
             "description": "Статус трека",
             "enum": [
               "new",
+              "notregistered",
               "ontheway",
               "problem",
               "department",
